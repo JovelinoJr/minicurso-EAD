@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutor virtual ou professor? | Minicurso EaD</title>
+<meta name="description" content="Minicurso EaD: como organizar o atendimento de dúvidas entre tutores virtuais (IA), tutores humanos e professores, com critérios de encaminhamento, mensagens e registros de acompanhamento.">
+<style>
+:root{
+  --bg:#f7f7f4; --surface:#ffffff; --surface-2:#eef1f5; --text:#1b1f24; --muted:#4a525c;
+  --line:#d5d9df; --accent:#1f4e8c; --accent-ink:#ffffff; --accent-soft:#e3ebf7;
+  --auto:#2f7a55; --auto-bg:#e3f1ea; --human:#2f4f8c; --human-bg:#e3eaf6;
+  --prof:#8c2f5b; --prof-bg:#f6e3ec; --dec:#8a6500; --dec-bg:#fff4d6; --neutral-bg:#efefef;
+  --ok:#1d6b43; --ok-bg:#e2f3e9; --err:#a3262a; --err-bg:#fbe6e6;
+  --radius:12px; --maxw:960px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14171b; --surface:#1c2026; --surface-2:#232830; --text:#eceff3; --muted:#b3bac4;
+    --line:#343b45; --accent:#8fb4ec; --accent-ink:#0f1520; --accent-soft:#1f2c40;
+    --auto:#7fd1a6; --auto-bg:#173327; --human:#9db8ec; --human-bg:#1b2740;
+    --prof:#eba3c4; --prof-bg:#3a1c2b; --dec:#f0c95a; --dec-bg:#332a10; --neutral-bg:#2a2f36;
+    --ok:#86dcaa; --ok-bg:#15301f; --err:#f3a0a2; --err-bg:#3a1818;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-ink);padding:10px 16px;z-index:10}
+.skip:focus{left:16px;top:16px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+header.hero{background:var(--surface);border-bottom:1px solid var(--line)}
+.hero .wrap{padding-top:40px;padding-bottom:32px}
+.eyebrow{font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+h1{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.2;margin:0 0 12px}
+h2{font-size:1.6rem;line-height:1.3;margin:0 0 16px}
+h3{font-size:1.2rem;margin:28px 0 10px}
+.lead{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0 0 20px}
+.author{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.95rem;color:var(--muted)}
+.author strong{color:var(--text)}
+nav.steps{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.steps ol{list-style:none;margin:0 auto;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;max-width:var(--maxw)}
+nav.steps a{display:block;white-space:nowrap;padding:6px 12px;border-radius:999px;text-decoration:none;color:var(--text);font-size:.92rem;border:1px solid var(--line)}
+nav.steps a:hover{background:var(--accent-soft)}
+nav.steps span{color:var(--muted);margin-right:4px;font-weight:600}
+main section{scroll-margin-top:64px;padding:48px 0;border-bottom:1px solid var(--line)}
+.step-tag{display:inline-block;font-size:.8rem;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:999px;margin-bottom:8px}
+.grid{display:grid;gap:16px}
+@media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.card h3{margin-top:0}
+.card ul,.card ol{margin:0;padding-left:1.2em}
+.obj li{margin-bottom:8px}
+.obj b{color:var(--accent)}
+.video{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--radius);overflow:hidden}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;background:#222}
+.chapters{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:4px}
+.chapters li{display:flex;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.chapters time{font-variant-numeric:tabular-nums;font-weight:600;min-width:52px;color:var(--accent)}
+.note{background:var(--surface-2);border-left:4px solid var(--accent);padding:12px 16px;border-radius:6px;font-size:.95rem}
+table{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--surface)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2)}
+.lvl{display:inline-block;font-weight:700;font-size:.8rem;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.lvl.auto{color:var(--auto);background:var(--auto-bg)}
+.lvl.human{color:var(--human);background:var(--human-bg)}
+.lvl.prof{color:var(--prof);background:var(--prof-bg)}
+figure{margin:0}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:8px}
+.flow{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.flow svg{width:100%;height:auto;display:block}
+.flow .n-auto{fill:var(--auto-bg);stroke:var(--auto)}
+.flow .n-human{fill:var(--human-bg);stroke:var(--human)}
+.flow .n-prof{fill:var(--prof-bg);stroke:var(--prof)}
+.flow .n-dec{fill:var(--dec-bg);stroke:var(--dec)}
+.flow .n-term{fill:var(--accent-soft);stroke:var(--accent)}
+.flow .n-reg{fill:var(--neutral-bg);stroke:var(--muted)}
+.flow rect,.flow polygon{stroke-width:1.6}
+.flow text{fill:var(--text);font:13px system-ui,sans-serif;text-anchor:middle}
+.flow text.t{font-weight:700}
+.flow text.lbl{font-weight:700;font-size:12px;fill:var(--muted);text-anchor:start}
+.flow path{fill:none;stroke:var(--muted);stroke-width:1.6}
+.flow marker path{fill:var(--muted);stroke:none}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:.9rem}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1.5px solid}
+.legend .a::before{background:var(--auto-bg);border-color:var(--auto)}
+.legend .h::before{background:var(--human-bg);border-color:var(--human)}
+.legend .p::before{background:var(--prof-bg);border-color:var(--prof)}
+.msg{background:var(--surface-2);border-radius:10px;padding:14px 16px;font-size:.95rem;white-space:pre-line}
+.msg-title{font-weight:700;margin:0 0 6px}
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:1rem;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:12px 20px;cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+/* quiz */
+.quiz{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+.progress{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.progress div{height:100%;background:var(--accent);width:0;transition:width .3s}
+.q-meta{font-size:.9rem;color:var(--muted);margin:0 0 6px}
+fieldset{border:0;padding:0;margin:0}
+legend{font-size:1.15rem;font-weight:700;margin-bottom:14px;line-height:1.4}
+.opt{display:flex;gap:12px;align-items:flex-start;border:2px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:6px;width:18px;height:18px;accent-color:var(--accent)}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--err);background:var(--err-bg)}
+.fb{margin-top:14px;padding:14px 16px;border-radius:10px}
+.fb.ok{background:var(--ok-bg);color:var(--text);border-left:5px solid var(--ok)}
+.fb.no{background:var(--err-bg);color:var(--text);border-left:5px solid var(--err)}
+.fb strong{display:block;margin-bottom:4px}
+.quiz-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.result-list{padding-left:1.2em}
+.refs li{margin-bottom:10px;overflow-wrap:anywhere}
+footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Minicurso EaD · Trilha “Docência Digital na Era da IA”</p>
+    <h1>Tutor virtual ou professor? Como organizar o atendimento de dúvidas na EaD</h1>
+    <p class="lead">Aprenda a dividir o atendimento entre recursos automatizados e a intervenção docente: critérios de encaminhamento, mensagens ao estudante e registros de acompanhamento, com exemplos de uma disciplina real e as ferramentas diagrams.net e Google Forms.</p>
+    <div class="author">
+      <span>Autor: <strong>Jovelino Junior</strong></span>
+      <span>Disciplina: Educação a Distância · Prof. Ermeson Andrade</span>
+      <span>Licenciatura em Computação · UFRPE</span>
+      <span>Área: Assistentes, agentes e automação na EaD (tema 16)</span>
+      <span>Duração estimada: ~50 min</span>
+    </div>
+  </div>
+</header>
+
+<nav class="steps" aria-label="Sequência de estudo">
+  <ol>
+    <li><a href="#antes"><span>1</span>Antes de começar</a></li>
+    <li><a href="#video"><span>2</span>Assista</a></li>
+    <li><a href="#pratica"><span>3</span>Material de apoio</a></li>
+    <li><a href="#avaliacao"><span>4</span>Avaliação</a></li>
+    <li><a href="#referencias"><span>5</span>Referências</a></li>
+  </ol>
+</nav>
+
+<main id="conteudo">
+
+<!-- 1. ANTES DE COMEÇAR -->
+<section id="antes" aria-labelledby="h-antes">
+  <div class="wrap">
+    <span class="step-tag">Etapa 1 · ~5 min</span>
+    <h2 id="h-antes">Antes de começar</h2>
+    <div class="grid two">
+      <div class="card">
+        <h3>Para quem é</h3>
+        <p>Professores, tutores e coordenadores de cursos a distância, e licenciandos que vão atuar na EaD e querem usar assistentes de IA sem abandonar o estudante.</p>
+      </div>
+      <div class="card">
+        <h3>O que você já precisa saber</h3>
+        <ul>
+          <li>Usar um AVA (Moodle, Google Classroom ou similar)</li>
+          <li>Ter noção do que é um chatbot ou assistente de IA</li>
+          <li>Criar um formulário simples no Google Forms</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Ao final, você será capaz de:</h3>
+    <ol class="obj">
+      <li><b>Diferenciar</b> os papéis do tutor virtual (IA), do tutor, do mediador pedagógico e do professor no atendimento de dúvidas.</li>
+      <li><b>Classificar</b> dúvidas de estudantes em níveis de atendimento usando critérios de encaminhamento.</li>
+      <li><b>Construir</b> um fluxograma de encaminhamento no diagrams.net.</li>
+      <li><b>Redigir</b> mensagens ao estudante adequadas a cada etapa do atendimento.</li>
+      <li><b>Montar</b> um registro de acompanhamento no Google Forms e usá-lo para melhorar o curso.</li>
+    </ol>
+
+    <h3>Como estudar</h3>
+    <p>Siga as etapas na ordem: assista ao vídeo (os capítulos ajudam a voltar em trechos), consulte o material de apoio enquanto pratica e termine com a avaliação. Ela dá feedback imediato em cada questão.</p>
+    <p>O conteúdo aparece em mais de um formato para atender diferentes estilos de aprendizagem (modelo VARK): vídeo e fluxograma para quem aprende vendo, a narração para quem aprende ouvindo, modelos de texto para quem prefere ler e escrever, e demonstrações para reproduzir na prática.</p>
+  </div>
+</section>
+
+<!-- 2. VÍDEO -->
+<section id="video" aria-labelledby="h-video">
+  <div class="wrap">
+    <span class="step-tag">Etapa 2 · ~27 min</span>
+    <h2 id="h-video">Assista à videoaula</h2>
+    <div class="video" id="player" data-youtube-id="COLE_AQUI_O_ID_DO_VIDEO">
+      <div class="ph">O vídeo aparecerá aqui. (Autor: troque o valor de <code>data-youtube-id</code> pelo ID do YouTube.)</div>
+    </div>
+    <p class="note">O vídeo tem legendas em português revisadas. Ative pelo botão <strong>CC</strong> do player.</p>
+    <h3>Capítulos</h3>
+    <ol class="chapters">
+      <li><time>00:00</time>Abertura: o problema das 80 mensagens às 23h</li>
+      <li><time>01:30</time>Objetivos e roteiro do minicurso</li>
+      <li><time>03:00</time>Tutor virtual, tutor, mediador pedagógico e professor: quem faz o quê</li>
+      <li><time>07:00</time>Critérios de encaminhamento e níveis de atendimento</li>
+      <li><time>11:00</time>Exemplo aplicado: dúvidas de Introdução à Programação</li>
+      <li><time>12:30</time>Demonstração: fluxograma no diagrams.net</li>
+      <li><time>17:30</time>Mensagens ao estudante em cada etapa</li>
+      <li><time>20:30</time>Demonstração: registro de acompanhamento no Google Forms</li>
+      <li><time>24:30</time>Ciclo de melhoria, ética e LGPD</li>
+      <li><time>26:30</time>Encerramento e convite à avaliação</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 3. MATERIAL DE APOIO -->
+<section id="pratica" aria-labelledby="h-pratica">
+  <div class="wrap">
+    <span class="step-tag">Etapa 3 · ~10 min</span>
+    <h2 id="h-pratica">Material de apoio</h2>
+
+    <h3>3.1 Quem faz o quê</h3>
+    <div class="grid three">
+      <div class="card"><span class="lvl auto">N1 · Tutor virtual</span>
+        <p><strong>Automatizado (IA ou FAQ).</strong> Responde na hora a dúvidas recorrentes e administrativas e explica conteúdo com base no material oficial da disciplina.</p>
+        <p><em>Não faz:</em> decidir notas, prazos excepcionais ou situações pessoais.</p></div>
+      <div class="card"><span class="lvl human">N2 · Equipe humana</span>
+        <p>Assume quando a automação não resolveu, já com o histórico da conversa. Retorno em até 24h úteis.</p>
+        <ul><li><strong>Tutor:</strong> questões administrativas e operacionais (acesso, AVA, envio de arquivos).</li>
+        <li><strong>Mediador pedagógico:</strong> dúvidas de conteúdo, por mensagem ou em atividade síncrona mediada (plantão em grupo pequeno).</li></ul>
+        <p><em>Não faz:</em> alterar critérios de avaliação.</p></div>
+      <div class="card"><span class="lvl prof">N3 · Professor</span>
+        <p><strong>Decisão docente.</strong> Trata avaliação, notas, exceções, conflitos e casos sensíveis, sempre de forma reservada. Retorno em até 48h úteis.</p></div>
+    </div>
+    <p class="note"><strong>Base legal:</strong> o Decreto nº 12.456/2025 (Nova Política de EaD) criou a figura do <strong>mediador pedagógico</strong>, com função exclusivamente pedagógica e formação compatível com o curso, diferente das atribuições administrativas dos tutores. Por isso o N2 separa quem cuida do administrativo de quem cuida do conteúdo.</p>
+
+    <h3>Como o tutor virtual deve explicar</h3>
+    <p>Configure o assistente para seguir o padrão de diálogo tutorial de Graesser et al. (citado por Gomes; Pimentel, 2021), e não para entregar a resposta pronta:</p>
+    <ol>
+      <li>Faz uma pergunta para entender o que o estudante já sabe.</li>
+      <li>O estudante responde.</li>
+      <li>Diz se a resposta está certa ou errada.</li>
+      <li>Orienta com dicas e exemplos do material oficial (o chamado <em>scaffolding</em>).</li>
+      <li>Verifica o entendimento. Se o estudante não entendeu depois de 2 ciclos, escala para o N2.</li>
+    </ol>
+
+    <h3>3.2 Critérios de encaminhamento</h3>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr">Critérios para decidir o nível de atendimento</caption>
+        <thead><tr><th scope="col">Critério</th><th scope="col">Sinal na mensagem</th><th scope="col">Vai para</th></tr></thead>
+        <tbody>
+          <tr><td>Sensibilidade</td><td>Saúde, situação pessoal, dados pessoais, conflito</td><td><span class="lvl prof">N3</span> direto, sem passar pela IA</td></tr>
+          <tr><td>Impacto avaliativo</td><td>Nota, revisão, prazo excepcional, o que “vale” no trabalho</td><td><span class="lvl prof">N3</span></td></tr>
+          <tr><td>Pedido explícito</td><td>“Quero falar com uma pessoa”</td><td><span class="lvl human">N2</span> (ou N3, se sensível)</td></tr>
+          <tr><td>Recorrência</td><td>Pergunta já está na FAQ ou no cronograma</td><td><span class="lvl auto">N1</span> com link oficial</td></tr>
+          <tr><td>Complexidade conceitual</td><td>Dúvida sobre o conteúdo</td><td><span class="lvl auto">N1</span> primeiro, depois <span class="lvl human">N2</span></td></tr>
+          <tr><td>Regra das 2 tentativas</td><td>IA respondeu 2 vezes e o estudante segue com a dúvida, ou a IA está incerta</td><td><span class="lvl human">N2</span> com histórico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.3 Exemplo aplicado: Introdução à Programação (EaD)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Dúvida do estudante</th><th scope="col">Encaminhamento</th><th scope="col">Por quê</th></tr></thead>
+        <tbody>
+          <tr><td>“Quando é a entrega da Atividade 2?”</td><td><span class="lvl auto">N1</span></td><td>Administrativa e recorrente: link do cronograma</td></tr>
+          <tr><td>“Não entendi a diferença entre <code>for</code> e <code>while</code>.”</td><td><span class="lvl auto">N1</span> → <span class="lvl human">N2</span></td><td>Conceitual: IA explica e escala se não resolver em 2 tentativas</td></tr>
+          <tr><td>“Meu código dá erro na linha 5 e já tentei de tudo.”</td><td><span class="lvl auto">N1</span> → <span class="lvl human">N2</span></td><td>Técnica: IA orienta a ler o erro; o mediador pedagógico revisa se persistir</td></tr>
+          <tr><td>“Posso usar uma biblioteca externa no projeto final?”</td><td><span class="lvl prof">N3</span></td><td>Envolve critério de avaliação</td></tr>
+          <tr><td>“Tirei 4 na AV1 e acho que a correção foi injusta.”</td><td><span class="lvl prof">N3</span></td><td>Nota e revisão são decisão docente</td></tr>
+          <tr><td>“Fiquei doente e perdi a prova.”</td><td><span class="lvl prof">N3</span> direto</td><td>Sensível: atendimento humano e reservado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.4 Fluxograma de encaminhamento</h3>
+    <figure class="flow">
+      <svg viewBox="0 0 830 910" role="img" aria-labelledby="flow-t flow-d">
+        <title id="flow-t">Fluxograma de encaminhamento de dúvidas</title>
+        <desc id="flow-d">A dúvida chega. Se for sensível ou avaliativa, vai direto ao professor. Se não, e se for administrativa ou estiver na FAQ, o tutor virtual responde com link oficial; caso contrário, o tutor virtual explica com base no material. Se resolver em até duas tentativas, a dúvida é registrada. Se não, vai à equipe humana: tutor para questões administrativas, mediador pedagógico para conteúdo. Se a equipe humana resolver sem envolver critério de avaliação, registra-se; se não, vai ao professor. Todos os casos terminam no registro de acompanhamento e na mensagem de encerramento com pesquisa de satisfação.</desc>
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z"/></marker></defs>
+        <!-- edges -->
+        <path d="M400 68 V100" marker-end="url(#arr)"/>
+        <path d="M530 155 H600" marker-end="url(#arr)"/><text class="lbl" x="545" y="147">Sim</text>
+        <path d="M400 210 V240" marker-end="url(#arr)"/><text class="lbl" x="408" y="230">Não</text>
+        <path d="M270 290 H150 V378" marker-end="url(#arr)"/><text class="lbl" x="205" y="282">Sim</text>
+        <path d="M400 340 V378" marker-end="url(#arr)"/><text class="lbl" x="408" y="364">Não</text>
+        <path d="M150 442 V465 H400"/>
+        <path d="M400 442 V480" marker-end="url(#arr)"/>
+        <path d="M270 530 H120 V790 H250" marker-end="url(#arr)"/><text class="lbl" x="200" y="522">Sim</text>
+        <path d="M400 580 V618" marker-end="url(#arr)"/><text class="lbl" x="408" y="604">Não</text>
+        <path d="M535 650 H580" marker-end="url(#arr)"/>
+        <path d="M680 605 V187" marker-end="url(#arr)"/><text class="lbl" x="688" y="590">Não</text>
+        <path d="M680 695 V790 H550" marker-end="url(#arr)"/><text class="lbl" x="688" y="722">Sim</text>
+        <path d="M800 155 H812 V790 H680"/>
+        <path d="M400 818 V846" marker-end="url(#arr)"/>
+        <!-- nodes -->
+        <rect class="n-term" x="270" y="16" width="260" height="52" rx="26"/>
+        <text x="400" y="38" class="t">Estudante envia a dúvida</text><text x="400" y="56">fórum, chat do AVA ou e-mail</text>
+
+        <polygon class="n-dec" points="400,100 530,155 400,210 270,155"/>
+        <text x="400" y="140" class="t">É sensível ou avaliativa?</text><text x="400" y="158">nota, saúde, dado pessoal,</text><text x="400" y="174">conflito, pede humano</text>
+
+        <rect class="n-prof" x="600" y="123" width="200" height="64" rx="10"/>
+        <text x="700" y="150" class="t">PROFESSOR (N3)</text><text x="700" y="170">reservado · até 48h úteis</text>
+
+        <polygon class="n-dec" points="400,240 530,290 400,340 270,290"/>
+        <text x="400" y="286" class="t">É administrativa</text><text x="400" y="304" class="t">ou está na FAQ?</text>
+
+        <rect class="n-auto" x="40" y="378" width="220" height="64" rx="10"/>
+        <text x="150" y="405" class="t">TUTOR VIRTUAL (N1)</text><text x="150" y="425">resposta da FAQ + link oficial</text>
+
+        <rect class="n-auto" x="290" y="378" width="220" height="64" rx="10"/>
+        <text x="400" y="405" class="t">TUTOR VIRTUAL (N1)</text><text x="400" y="425">explicação guiada pelo material</text>
+
+        <polygon class="n-dec" points="400,480 530,530 400,580 270,530"/>
+        <text x="400" y="526" class="t">Resolveu em até</text><text x="400" y="544" class="t">2 tentativas?</text>
+
+        <rect class="n-human" x="265" y="618" width="270" height="64" rx="10"/>
+        <text x="400" y="640" class="t">EQUIPE HUMANA (N2) · até 24h</text><text x="400" y="657">tutor: administrativo</text><text x="400" y="673">mediador pedagógico: conteúdo</text>
+
+        <polygon class="n-dec" points="680,605 780,650 680,695 580,650"/>
+        <text x="680" y="646" class="t">Resolveu sem</text><text x="680" y="662" class="t">critério avaliativo?</text>
+
+        <rect class="n-reg" x="250" y="762" width="300" height="56" rx="10"/>
+        <text x="400" y="786" class="t">REGISTRO DE ACOMPANHAMENTO</text><text x="400" y="805">Google Forms → Planilha</text>
+
+        <rect class="n-term" x="270" y="846" width="260" height="52" rx="26"/>
+        <text x="400" y="868" class="t">Mensagem de encerramento</text><text x="400" y="886">+ pesquisa de satisfação</text>
+      </svg>
+      <div class="legend" aria-hidden="true"><span class="a">Automatizado</span><span class="h">Equipe humana (tutor / mediador)</span><span class="p">Professor</span></div>
+      <figcaption>Fluxograma de encaminhamento. <a href="fluxograma-encaminhamento.drawio" download>Baixar o arquivo editável (.drawio)</a> e abrir em <a href="https://app.diagrams.net" target="_blank" rel="noopener">app.diagrams.net</a> (Arquivo → Abrir de → Dispositivo).</figcaption>
+    </figure>
+    <p class="note"><strong>Por que a primeira pergunta é “é sensível?”</strong> Para que dados pessoais e decisões sobre nota nunca passem pela automação. A IA atende o que é repetitivo, e o humano cuida do que exige julgamento e acolhimento.</p>
+
+    <h3>3.5 Modelos de mensagem ao estudante</h3>
+    <div class="grid two">
+      <div><p class="msg-title">1. Recebimento (automática)</p><div class="msg">Olá, {nome}! Recebemos sua dúvida sobre {tema}. Protocolo #{id}.
+O tutor virtual responde agora. Se ainda precisar de ajuda, alguém da equipe retorna em até 24h úteis.</div></div>
+      <div><p class="msg-title">2. Resposta do tutor virtual</p><div class="msg">{explicação curta}
+Fonte: {link do material/FAQ}.
+Isso resolveu sua dúvida?  [Sim]  [Não, quero falar com uma pessoa]</div></div>
+      <div><p class="msg-title">3. Encaminhamento à equipe humana</p><div class="msg">Sua dúvida #{id} foi encaminhada ao {tutor/mediador pedagógico} {nome}, que já recebeu o histórico da conversa. Você terá retorno até {data}. Não precisa reenviar a pergunta.</div></div>
+      <div><p class="msg-title">4. Encaminhamento ao professor (sensível)</p><div class="msg">Como sua mensagem trata de {nota/situação pessoal}, ela foi enviada diretamente e de forma reservada ao(à) Prof. {nome}. O retorno será até {data}. Se for urgente, use {canal oficial}.</div></div>
+      <div><p class="msg-title">5. Encerramento</p><div class="msg">Sua dúvida #{id} foi marcada como resolvida. Avalie o atendimento (leva 1 min): {link}.
+Se algo ficou pendente, responda esta mensagem em até 7 dias.</div></div>
+      <div class="card"><h3>Checklist de uma boa mensagem</h3><ul><li>Diz <strong>quem</strong> vai responder</li><li>Diz <strong>quando</strong> ele vai responder</li><li>Diz <strong>o que o estudante precisa fazer</strong> (ou que não precisa fazer nada)</li><li>Tom acolhedor e sem jargão</li><li>Nunca encerra sem dizer se a solução está correta. A “falta de feedback positivo” é um dos ruídos de fórum apontados por Gomes e Pimentel (2021).</li></ul></div>
+    </div>
+
+    <h3>3.6 Registro de acompanhamento (Google Forms)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Campo do formulário</th><th scope="col">Tipo no Forms</th></tr></thead>
+        <tbody>
+          <tr><td>Protocolo</td><td>Resposta curta</td></tr>
+          <tr><td>Matrícula do estudante</td><td>Resposta curta</td></tr>
+          <tr><td>Unidade / semana da disciplina</td><td>Lista suspensa</td></tr>
+          <tr><td>Tipo de dúvida (administrativa, conceitual, técnica, avaliativa, pessoal)</td><td>Múltipla escolha</td></tr>
+          <tr><td>Nível final de atendimento (N1, N2, N3)</td><td>Múltipla escolha</td></tr>
+          <tr><td>Interações com o tutor virtual</td><td>Escala linear 0–5</td></tr>
+          <tr><td>Motivo do encaminhamento</td><td>Caixas de seleção</td></tr>
+          <tr><td>Status (aberta, encaminhada, resolvida)</td><td>Múltipla escolha</td></tr>
+          <tr><td>Satisfação do estudante</td><td>Escala linear 1–5</td></tr>
+          <tr><td>Sugestão para a FAQ / material</td><td>Parágrafo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>LGPD: registre o mínimo.</strong> Em casos pessoais, anote apenas “situação pessoal, tratada pelo professor”. Não guarde diagnósticos nem detalhes. Vincule as respostas a uma planilha e acompanhe semanalmente: taxa de resolução no N1, tempo médio de resposta e dúvidas mais repetidas. As mais repetidas viram novas entradas da FAQ.</p>
+  </div>
+</section>
+
+<!-- 4. AVALIAÇÃO -->
+<section id="avaliacao" aria-labelledby="h-aval">
+  <div class="wrap">
+    <span class="step-tag">Etapa 4 · ~8 min</span>
+    <h2 id="h-aval">Avaliação interativa</h2>
+    <p>São 9 situações do dia a dia de um curso EaD. Escolha uma resposta e clique em <strong>Verificar</strong> para ver o feedback na hora. Você pode refazer quantas vezes quiser.</p>
+    <div class="quiz" id="quiz">
+      <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+      <div id="qbox"></div>
+      <div id="live" class="sr" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. REFERÊNCIAS -->
+<section id="referencias" aria-labelledby="h-refs">
+  <div class="wrap">
+    <span class="step-tag">Etapa 5</span>
+    <h2 id="h-refs">Referências</h2>
+    <ul class="refs">
+      <li>BRASIL. Decreto nº 12.456, de 19 de maio de 2025. Dispõe sobre a oferta de educação a distância por instituições de educação superior (Nova Política de EaD). Brasília, 2025. Ver também: MINISTÉRIO DA EDUCAÇÃO. <em>Assinado decreto que institui a Nova Política de EaD</em>. 20 maio 2025. Disponível em: <a href="https://www.gov.br/mec/pt-br/assuntos/noticias/2025/maio/assinado-decreto-que-institui-a-nova-politica-de-ead" target="_blank" rel="noopener">gov.br/mec</a>.</li>
+      <li>BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, 2018.</li>
+      <li>BRASIL. Ministério da Educação. <em>Referenciais de qualidade para educação superior a distância</em>. Brasília: MEC/SEED, 2007.</li>
+      <li>DIAGRAMS.NET. Documentação e editor on-line. Disponível em: <a href="https://www.drawio.com/doc/" target="_blank" rel="noopener">https://www.drawio.com/doc/</a>.</li>
+      <li>ESCOLA DIGITAL PROFESSOR. <em>Estilos de aprendizagem</em>. Secretaria da Educação do Paraná. Disponível em: <a href="https://professor.escoladigital.pr.gov.br/estilos_aprendizagem" target="_blank" rel="noopener">https://professor.escoladigital.pr.gov.br/estilos_aprendizagem</a>.</li>
+      <li>FILATRO, A. <em>Design instrucional na prática</em>. São Paulo: Pearson Education do Brasil, 2008.</li>
+      <li>GARRISON, D. R.; ANDERSON, T.; ARCHER, W. Critical inquiry in a text-based environment: computer conferencing in higher education. <em>The Internet and Higher Education</em>, v. 2, n. 2-3, p. 87-105, 2000.</li>
+      <li>GOMES, A. S.; PIMENTEL, E. P. Ambientes virtuais de aprendizagem para uma educação mediada por tecnologias digitais. In: PIMENTEL, M.; SAMPAIO, F. F.; SANTOS, E. (Org.). <em>Informática na Educação: ambientes de aprendizagem, objetos de aprendizagem e empreendedorismo</em>. Porto Alegre: SBC, 2021. (Série Informática na Educação CEIE-SBC, v. 5). Disponível em: <a href="https://ieducacao.ceie-br.org/ava" target="_blank" rel="noopener">https://ieducacao.ceie-br.org/ava</a>.</li>
+      <li>GOOGLE. Central de Ajuda do Google Forms. Disponível em: <a href="https://support.google.com/docs/topic/9055404" target="_blank" rel="noopener">https://support.google.com/docs/topic/9055404</a>.</li>
+      <li>MELLO, C. M.; ALMEIDA NETO, J. R. M.; COSTA, M. M. Design instrucional na educação digital. <em>Revista Interdisciplinar de Direito</em>, v. 22, n. 1, e20242204, jan./jun. 2024. DOI: 10.24859/RID.2024v22n1.1507.</li>
+      <li>MOLENDA, M. In search of the elusive ADDIE model. <em>Performance Improvement</em>, v. 42, n. 5, p. 34-36, 2003.</li>
+      <li>MOORE, M. G.; KEARSLEY, G. <em>Educação a distância: sistemas de aprendizagem on-line</em>. 3. ed. São Paulo: Cengage Learning, 2013.</li>
+      <li>UNESCO. <em>Guidance for generative AI in education and research</em>. Paris: UNESCO, 2023.</li>
+    </ul>
+    <details class="card" style="margin-top:20px">
+      <summary><strong>Como este minicurso foi planejado (ADDIE e ASSURE)</strong></summary>
+      <ul style="margin-top:10px">
+        <li><strong>Análise:</strong> docentes e tutores EaD que já usam AVA e enfrentam alto volume de dúvidas.</li>
+        <li><strong>Design:</strong> 5 objetivos observáveis (verbos da taxonomia de Bloom) e sequência conceito → critério → exemplo → prática → avaliação.</li>
+        <li><strong>Desenvolvimento:</strong> videoaula com demonstrações, fluxograma editável, modelos de mensagem e de formulário, quiz com feedback.</li>
+        <li><strong>Implementação:</strong> site com trilha numerada, vídeo no YouTube com legendas revisadas.</li>
+        <li><strong>Avaliação:</strong> quiz alinhado a cada objetivo (indicado em cada questão) e pesquisa de satisfação.</li>
+      </ul>
+      <p style="margin-bottom:0">Visto pelo modelo <strong>ASSURE</strong>: <em>Analyze learners</em> (público e pré-requisitos) → <em>State objectives</em> (5 objetivos verificáveis) → <em>Select media</em> (vídeo, diagrams.net, Google Forms) → <em>Utilize media</em> (demonstrações guiadas) → <em>Require participation</em> (pausa ativa e quiz) → <em>Evaluate and revise</em> (resultado do quiz e pesquisa de satisfação). Modelos descritos por Mello, Almeida Neto e Costa (2024) e Filatro (2008).</p>
+    </details>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">Minicurso produzido por Jovelino Junior para a disciplina Educação a Distância (Prof. Ermeson Andrade), Licenciatura em Computação, UFRPE, 2026.</div></footer>
+
+<script>
+// ---------- Vídeo ----------
+(function(){
+  var el=document.getElementById('player'), id=el.getAttribute('data-youtube-id');
+  if(id && id.indexOf('COLE_AQUI')!==0){
+    el.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?cc_load_policy=1&cc_lang_pref=pt&hl=pt-BR&rel=0" title="Videoaula: Tutor virtual ou professor? Organizando o atendimento na EaD" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+  }
+})();
+
+// ---------- Quiz ----------
+var Q=[
+ {obj:1,q:"Qual destas demandas é a mais adequada para o tutor virtual (automatizado) resolver sozinho?",
+  o:[["Informar o prazo da Atividade 2, com o link do cronograma oficial.",1,"Isso mesmo. É uma dúvida administrativa, recorrente e com resposta objetiva no material oficial: o caso ideal para automação."],
+     ["Decidir se um estudante pode refazer a prova.",0,"Prazos e exceções são decisões docentes, porque envolvem avaliação e justiça entre os estudantes. Isso vai para o professor (N3)."],
+     ["Acolher um estudante que relata um problema de saúde.",0,"Situações sensíveis precisam de acolhimento humano e reservado. Pelo fluxograma, vão direto ao professor, sem passar pela IA."],
+     ["Definir se uma biblioteca externa é permitida no projeto final.",0,"Essa resposta muda o critério de avaliação do projeto, então cabe ao professor decidir."]]},
+ {obj:2,q:"Um estudante escreve: “Tirei 4 na AV1 e acho que a correção foi injusta.” Qual é o encaminhamento correto?",
+  o:[["O tutor virtual explica os critérios de correção e encerra o atendimento.",0,"Explicar os critérios pode até ajudar, mas encerrar o atendimento ignora o pedido de revisão. Revisão de nota é decisão docente."],
+     ["Encaminhar diretamente ao professor (N3), de forma reservada.",1,"Correto. Nota e revisão têm impacto avaliativo: o primeiro teste do fluxograma já manda o caso ao professor."],
+     ["Encaminhar ao mediador pedagógico (N2) para ele decidir a nova nota.",0,"O mediador pedagógico apoia a aprendizagem, mas não altera critérios nem notas. Quem decide é o professor."],
+     ["Responder com o link da FAQ sobre avaliações.",0,"Mandar a FAQ para uma contestação pessoal soa como descaso. O caso é avaliativo e vai ao professor."]]},
+ {obj:2,q:"Uma estudante já perguntou duas vezes ao tutor virtual sobre o laço for e continua sem entender. O que fazer?",
+  o:[["Deixar a IA tentar até ela entender.",0,"Insistir na automação gera frustração e um loop sem saída. A regra das 2 tentativas existe para evitar isso."],
+     ["Encaminhar ao mediador pedagógico (N2), junto com o histórico da conversa.",1,"Isso mesmo. Depois de 2 tentativas sem sucesso, a dúvida de conteúdo escala para o mediador pedagógico, e o histórico evita que ela repita tudo."],
+     ["Encaminhar ao professor (N3).",0,"É uma dúvida conceitual, sem impacto avaliativo nem sensibilidade. O próximo nível é o mediador pedagógico, não o professor."],
+     ["Encerrar e indicar que ela reveja o vídeo.",0,"Encerrar uma dúvida que não foi resolvida quebra o acompanhamento. A estudante já tentou e precisa de mediação humana."]]},
+ {obj:3,q:"Ao desenhar o fluxograma no diagrams.net, qual deve ser a PRIMEIRA decisão (losango) depois que a dúvida chega?",
+  o:[["“Está na FAQ?”",0,"Se essa fosse a primeira pergunta, uma mensagem sensível poderia ser respondida por automação antes de chegar a um humano."],
+     ["“É sensível ou avaliativa?”",1,"Correto. Verificar isso primeiro garante que dados pessoais e decisões sobre nota nunca passem pela IA."],
+     ["“Resolveu em até 2 tentativas?”",0,"Essa decisão só faz sentido depois que o tutor virtual já tentou responder, então vem mais adiante no fluxo."],
+     ["“O estudante avaliou o atendimento?”",0,"A avaliação acontece no encerramento, depois do registro. Não serve para encaminhar a dúvida."]]},
+ {obj:3,q:"No fluxograma, o que acontece quando a equipe humana (N2) não consegue resolver, ou percebe que a dúvida envolve critério de avaliação?",
+  o:[["A dúvida volta para o tutor virtual.",0,"Voltar para a automação cria um ciclo. O fluxo só avança para níveis com mais autonomia de decisão."],
+     ["A dúvida é encerrada como não resolvida.",0,"Nenhum caminho do fluxograma termina sem resolução ou registro. Há sempre um próximo responsável."],
+     ["A dúvida escala para o professor (N3).",1,"Isso mesmo. O professor é o último nível e tem autonomia para decidir sobre avaliação e exceções."],
+     ["O estudante é orientado a abrir um novo protocolo.",0,"Pedir para reabrir faz o estudante repetir tudo. O encaminhamento deve ser interno, mantendo o mesmo protocolo."]]},
+ {obj:1,q:"Um estudante não consegue enviar o arquivo da atividade no AVA, e a FAQ não resolveu. Pela Nova Política de EaD (Decreto nº 12.456/2025), quem deve assumir?",
+  o:[["O mediador pedagógico, porque ele atende toda dúvida humana.",0,"Pelo decreto, o mediador pedagógico tem função exclusivamente pedagógica. Um problema de envio de arquivo é operacional."],
+     ["O tutor, porque é uma questão administrativa ou operacional.",1,"Correto. O decreto separa o mediador pedagógico (conteúdo) das atribuições administrativas dos tutores. Envio de arquivo é suporte operacional."],
+     ["O professor, porque envolve uma atividade avaliativa.",0,"A dúvida é sobre como enviar, não sobre nota ou critério. Só iria ao professor se o estudante pedisse, por exemplo, mais prazo."],
+     ["Ninguém: o estudante deve procurar o suporte de TI por conta própria.",0,"Isso transfere o problema para o estudante. O fluxo interno deve encaminhar a dúvida mantendo o mesmo protocolo."]]},
+ {obj:4,q:"Qual é a melhor mensagem para avisar o estudante de que a dúvida foi encaminhada à equipe humana?",
+  o:[["“Sua dúvida foi encaminhada.”",0,"Falta dizer quem vai responder, quando, e que o estudante não precisa fazer nada. Sem isso, ele tende a reenviar a pergunta."],
+     ["“Sua dúvida #123 foi encaminhada ao mediador pedagógico Carlos, que já tem o histórico. Retorno até quinta, 18h. Não precisa reenviar.”",1,"Perfeito. A mensagem diz quem, quando e o que fazer, que são os três pontos do checklist."],
+     ["“Aguarde, sua solicitação está na fila de atendimento.”",0,"É genérica e impessoal: não informa prazo nem responsável, o que gera ansiedade e mensagens repetidas."],
+     ["“Não consegui responder, procure seu professor.”",0,"Isso transfere o trabalho para o estudante. O encaminhamento deve ser feito pela equipe, não por ele."]]},
+ {obj:5,q:"Qual informação NÃO deve ir para o registro de acompanhamento no Google Forms?",
+  o:[["O nível final do atendimento (N1, N2 ou N3).",0,"Esse campo é essencial para medir quanto a automação resolve e onde estão os gargalos."],
+     ["A descrição detalhada do problema de saúde relatado pelo estudante.",1,"Correto. Pela LGPD (minimização de dados), basta registrar “situação pessoal, tratada pelo professor”. Dados de saúde são sensíveis."],
+     ["O tipo de dúvida (administrativa, conceitual…).",0,"O tipo de dúvida mostra padrões e ajuda a melhorar a FAQ e o material. Deve ser registrado."],
+     ["A nota de satisfação do estudante.",0,"A satisfação é um indicador importante da qualidade do atendimento e deve ser registrada."]]},
+ {obj:5,q:"A planilha mostra que 30% das dúvidas da semana foram “como enviar o arquivo no AVA”. Qual é a melhor ação?",
+  o:[["O professor passa a responder cada uma pessoalmente.",0,"Isso gasta tempo docente com algo repetitivo, que a automação resolve bem."],
+     ["Desativar o tutor virtual, já que ele não está dando conta.",0,"O problema não é o tutor virtual, e sim a falta de uma orientação clara. Desativá-lo aumentaria a fila."],
+     ["Criar um tutorial curto, adicioná-lo à FAQ e à base do tutor virtual e avisar a turma.",1,"Isso mesmo. É o ciclo de melhoria: o registro revela o padrão, e a correção vai para o material e para a automação."],
+     ["Ignorar, porque é uma dúvida simples.",0,"Dúvidas simples e frequentes indicam uma falha no design do curso. O registro serve justamente para detectar isso."]]}
+];
+function shuffle(a){for(var j=a.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1)),t=a[j];a[j]=a[r];a[r]=t;}return a;}
+Q.forEach(function(q){shuffle(q.o);});
+var i=0,score=0,answers=[];
+var box=document.getElementById('qbox'),bar=document.getElementById('bar'),live=document.getElementById('live');
+function render(){
+  bar.style.width=(i/Q.length*100)+'%';
+  if(i>=Q.length) return finish();
+  var q=Q[i],h='<p class="q-meta">Questão '+(i+1)+' de '+Q.length+' · Objetivo '+q.obj+'</p><fieldset><legend id="qleg" tabindex="-1">'+q.q+'</legend>';
+  q.o.forEach(function(o,k){h+='<label class="opt"><input type="radio" name="op" value="'+k+'"><span>'+o[0]+'</span></label>';});
+  h+='</fieldset><div id="fb"></div><div class="quiz-actions"><button class="btn" id="chk" disabled>Verificar</button></div>';
+  box.innerHTML=h;
+  var chk=document.getElementById('chk');
+  box.querySelectorAll('input').forEach(function(r){r.addEventListener('change',function(){chk.disabled=false;});});
+  chk.addEventListener('click',check);
+  if(i>0) document.getElementById('qleg').focus();
+}
+function check(){
+  var sel=box.querySelector('input:checked'); if(!sel) return;
+  var k=+sel.value,q=Q[i],ok=q.o[k][1]===1,labels=box.querySelectorAll('.opt');
+  box.querySelectorAll('input').forEach(function(r){r.disabled=true;});
+  q.o.forEach(function(o,j){ if(o[1]) labels[j].classList.add('correct'); });
+  if(!ok) labels[k].classList.add('wrong');
+  if(ok) score++;
+  answers.push(ok);
+  var right=q.o.filter(function(o){return o[1];})[0];
+  var fb='<div class="fb '+(ok?'ok':'no')+'" role="status"><strong>'+(ok?'✔ Resposta correta':'✘ Ainda não')+'</strong>'+q.o[k][2]+(ok?'':'<br><br><em>Resposta correta:</em> '+right[0]+' '+right[2])+'</div>';
+  document.getElementById('fb').innerHTML=fb;
+  live.textContent=(ok?'Resposta correta. ':'Resposta incorreta. ')+q.o[k][2];
+  var act=box.querySelector('.quiz-actions');
+  act.innerHTML='<button class="btn" id="nx">'+(i<Q.length-1?'Próxima questão →':'Ver resultado')+'</button>';
+  var nx=document.getElementById('nx'); nx.focus();
+  nx.addEventListener('click',function(){i++;render();});
+}
+function finish(){
+  bar.style.width='100%';
+  var pct=Math.round(score/Q.length*100),msg;
+  if(pct>=85) msg='Excelente! Você domina a organização do atendimento. Que tal montar o fluxograma da sua própria disciplina?';
+  else if(pct>=60) msg='Bom resultado! Revise os tópicos marcados abaixo no material de apoio.';
+  else msg='Vale revisitar o vídeo (capítulos 03:00 e 07:00) e a tabela de critérios antes de tentar de novo.';
+  var h='<h3 id="res" tabindex="-1" style="margin-top:0">Você acertou '+score+' de '+Q.length+' ('+pct+'%)</h3><p>'+msg+'</p><ol class="result-list">';
+  Q.forEach(function(q,j){h+='<li>'+(answers[j]?'✔':'✘')+' Objetivo '+q.obj+': '+q.q+'</li>';});
+  h+='</ol><div class="quiz-actions"><button class="btn" id="again">Refazer a avaliação</button><a class="btn ghost" href="#pratica">Revisar o material</a></div>';
+  box.innerHTML=h; document.getElementById('res').focus();
+  live.textContent='Avaliação concluída. Você acertou '+score+' de '+Q.length+'.';
+  document.getElementById('again').addEventListener('click',function(){Q.forEach(function(q){shuffle(q.o);});i=0;score=0;answers=[];render();});
+}
+render();
+</script>
+</body>
+</html>
