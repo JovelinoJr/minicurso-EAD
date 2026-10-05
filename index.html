@@ -189,9 +189,10 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:.9rem}
   <div class="wrap">
     <span class="step-tag">Etapa 2 · ~27 min</span>
     <h2 id="h-video">Assista à videoaula</h2>
-    <div class="video" id="player" data-youtube-id="COLE_AQUI_O_ID_DO_VIDEO">
-      <div class="ph"><p><strong>Videoaula em produção</strong><br>O vídeo (20–30 min, com legendas revisadas) será publicado aqui até 05/10/2026. Os capítulos abaixo mostram o roteiro.</p></div>
+    <div class="video" id="player">
+      <iframe src="https://www.youtube-nocookie.com/embed/-IdUuN06SRA?cc_load_policy=1&amp;cc_lang_pref=pt&amp;hl=pt-BR&amp;rel=0" title="Videoaula: Tutor virtual ou professor? Organizando o atendimento na EaD" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
+    <p style="margin-top:8px;font-size:.95rem">Não carregou? <a href="https://youtu.be/-IdUuN06SRA" target="_blank" rel="noopener">Assista direto no YouTube</a>.</p>
     <p class="note">O vídeo tem legendas em português revisadas. Ative pelo botão <strong>CC</strong> do player.</p>
     <h3>Capítulos</h3>
     <ol class="chapters">
@@ -419,13 +420,6 @@ Se algo ficou pendente, responda esta mensagem em até 7 dias.</div></div>
 <footer><div class="wrap">Minicurso produzido por Jovelino Junior para a disciplina Educação a Distância (Prof. Ermeson Andrade), Licenciatura em Computação, UFRPE, 2026.</div></footer>
 
 <script>
-// ---------- Vídeo ----------
-(function(){
-  var el=document.getElementById('player'), id=el.getAttribute('data-youtube-id');
-  if(id && id.indexOf('COLE_AQUI')!==0){
-    el.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?cc_load_policy=1&cc_lang_pref=pt&hl=pt-BR&rel=0" title="Videoaula: Tutor virtual ou professor? Organizando o atendimento na EaD" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
-  }
-})();
 
 // ---------- Quiz ----------
 var Q=[
