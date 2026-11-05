@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Central de Dúvidas: o jogo</title>
+<style>
+:root{--bg:#f7f7f4;--s:#fff;--s2:#eef1f5;--t:#1b1f24;--m:#4a525c;--l:#d5d9df;--a:#1f4e8c;--ai:#fff;
+--n1:#2f7a55;--n1b:#e3f1ea;--n2:#2f4f8c;--n2b:#e3eaf6;--n3:#8c2f5b;--n3b:#f6e3ec;--ok:#1d6b43;--okb:#e2f3e9;--er:#a3262a;--erb:#fbe6e6;--gold:#8a6500}
+@media (prefers-color-scheme:dark){:root{--bg:#14171b;--s:#1c2026;--s2:#232830;--t:#eceff3;--m:#b3bac4;--l:#343b45;--a:#8fb4ec;--ai:#0f1520;
+--n1:#7fd1a6;--n1b:#173327;--n2:#9db8ec;--n2b:#1b2740;--n3:#eba3c4;--n3b:#3a1c2b;--ok:#86dcaa;--okb:#15301f;--er:#f3a0a2;--erb:#3a1818;--gold:#f0c95a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+:focus-visible{outline:3px solid var(--a);outline-offset:3px}
+h1{font-size:1.6rem;margin:0 0 4px}.sub{color:var(--m);margin:0 0 16px}
+.card{background:var(--s);border:1px solid var(--l);border-radius:14px;padding:20px}
+.hud{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-weight:600}
+.hud div{background:var(--s);border:1px solid var(--l);border-radius:999px;padding:4px 14px;font-size:.95rem}
+.timer{height:8px;background:var(--s2);border-radius:99px;overflow:hidden;margin-bottom:14px}.timer i{display:block;height:100%;background:var(--a);width:100%;transition:width .1s linear}
+.msg{background:var(--s2);border-radius:14px 14px 14px 4px;padding:14px 16px;font-size:1.1rem;margin:6px 0 4px;cursor:grab}
+.who{font-size:.8rem;color:var(--m);font-weight:600}.ctx{font-size:.9rem;color:var(--m);margin:6px 0 0}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.bin{font:inherit;border:2px solid;border-radius:14px;padding:14px 8px;cursor:pointer;text-align:center;font-weight:700;transition:transform .1s}
+.bin small{display:block;font-weight:400;font-size:.8rem;margin-top:4px}
+.bin:hover,.bin.over{transform:translateY(-3px)}.bin:disabled{cursor:default;transform:none;opacity:.6}
+.b1{background:var(--n1b);color:var(--n1);border-color:var(--n1)}.b2{background:var(--n2b);color:var(--n2);border-color:var(--n2)}.b3{background:var(--n3b);color:var(--n3);border-color:var(--n3)}
+.fb{margin-top:14px;border-radius:12px;padding:12px 16px;display:none}.fb.ok{display:block;background:var(--okb);color:var(--ok)}.fb.er{display:block;background:var(--erb);color:var(--er)}
+.fb p{margin:4px 0 0;color:var(--t)}
+.btn{font:inherit;font-weight:600;background:var(--a);color:var(--ai);border:0;border-radius:10px;padding:12px 22px;cursor:pointer;margin-top:12px;text-decoration:none;display:inline-block}
+.btn.g{background:transparent;color:var(--a);border:2px solid var(--a)}
+.rules li{margin-bottom:6px}.big{font-size:3rem;font-weight:800;color:var(--a);margin:0}
+.badge{display:inline-block;font-size:1.2rem;font-weight:700;color:var(--gold);margin:4px 0 12px}
+.rev{list-style:none;padding:0;font-size:.92rem}.rev li{padding:8px 0;border-bottom:1px solid var(--l)}
+.sr{position:absolute;left:-9999px}
+@media(max-width:520px){.bin{padding:12px 4px;font-size:.9rem}.bin small{display:none}}
+</style></head><body><main class="w">
+<h1>Central de Dúvidas</h1>
+<p class="sub">Você é o coordenador do atendimento de uma disciplina EaD. As mensagens estão chegando. Mande cada uma para o nível certo!</p>
+<div id="app" class="card"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+</main>
+<script>
+const L={1:"Tutor virtual (N1)",2:"Equipe humana (N2)",3:"Professor (N3)"};
+const D=[
+["Quando é a entrega da Atividade 2?","",1,"Administrativa e recorrente: o tutor virtual responde com o link do cronograma."],
+["Onde encontro o plano de ensino?","",1,"Está na FAQ. N1 resolve na hora com o link oficial."],
+["Qual o formato do arquivo para enviar a atividade?","",1,"Pergunta recorrente e administrativa: N1 com link do enunciado."],
+["Não entendi a diferença entre for e while.","Primeira mensagem sobre o tema.",1,"Dúvida conceitual começa no N1, que explica pelo material. Só escala se não resolver em 2 tentativas."],
+["O que é uma variável?","",1,"Conteúdo básico que está no material: N1 explica com diálogo tutorial."],
+["Ainda não entendi o exercício 4.","O tutor virtual já tentou explicar 2 vezes.",2,"Regra das 2 tentativas: vai para o mediador pedagógico, com o histórico da conversa."],
+["Quero falar com uma pessoa, por favor.","Dúvida sobre o conteúdo da unidade 3.",2,"Pedido explícito por humano e não sensível: N2."],
+["Não consigo acessar o AVA, aparece erro de senha.","",2,"Problema técnico de acesso: o tutor (N2) cuida do administrativo/operacional."],
+["Meu arquivo não sobe no AVA, dá erro de tamanho.","A FAQ não cobre esse erro.",2,"Questão operacional fora da FAQ: tutor do N2."],
+["A IA não soube responder minha pergunta sobre recursão.","O assistente disse que não tem certeza.",2,"IA incerta = escala para o N2 (mediador pedagógico), com histórico."],
+["Tirei 4 na AV1 e acho que a correção foi injusta.","",3,"Nota e revisão são decisão docente: N3, de forma reservada."],
+["Fiquei doente e perdi a prova.","",3,"Situação sensível e de saúde: N3 direto, sem passar pela IA."],
+["Posso usar uma biblioteca externa no projeto final?","",3,"Envolve critério de avaliação: só o professor decide."],
+["Consigo uma prorrogação de 3 dias na entrega?","",3,"Prazo excepcional é decisão docente: N3."],
+["Meu colega copiou meu código e entregou como dele.","",3,"Conflito e possível plágio: N3, reservado."],
+["Estou passando por um momento difícil em casa e não consigo acompanhar.","",3,"Situação pessoal: atendimento humano e reservado com o professor."],
+["A questão 2 da prova vale quanto?","",3,"Critério de avaliação: decisão docente (N3)."],
+["Vai ter plantão de dúvidas essa semana?","Está no cronograma.",1,"Informação já publicada: N1 responde com o link."]
+];
+const T=15, N=12;
+let q,i,score,lives,combo,best,left,tick,log,locked;
+const $=s=>document.querySelector(s), app=$("#app"), say=m=>$("#live").textContent=m;
+function intro(){
+ app.innerHTML=`<h2 style="margin-top:0">Como jogar</h2><ul class="rules">
+ <li>Chegam <b>${N} mensagens</b> de estudantes. Clique (ou arraste) para enviar cada uma a <b>N1</b>, <b>N2</b> ou <b>N3</b>.</li>
+ <li>Você tem <b>${T} segundos</b> por mensagem e <b>3 vidas</b> ❤️.</li>
+ <li>Acertos seguidos multiplicam os pontos (combo). Responder rápido dá bônus.</li>
+ <li>Lembre da ordem: <b>sensível ou avaliativa?</b> → professor. <b>Recorrente/FAQ?</b> → tutor virtual. <b>IA tentou 2x ou pediu humano?</b> → equipe.</li></ul>
+ <p class="sub">Atalhos: teclas 1, 2 e 3.</p><button class="btn" id="go">Começar plantão</button>`;
+ $("#go").onclick=start;$("#go").focus();
+}
+function start(){q=[...D].sort(()=>Math.random()-.5).slice(0,N);i=0;score=0;lives=3;combo=0;best=0;log=[];next()}
+function next(){
+ if(i>=q.length||lives<=0)return end();
+ const [m,c]=q[i];locked=false;left=T;
+ app.innerHTML=`<div class="hud"><div>📨 ${i+1}/${q.length}</div><div>⭐ ${score}</div><div>${"❤️".repeat(lives)}${"🤍".repeat(3-lives)}</div><div>🔥 x${Math.max(1,combo)}</div></div>
+ <div class="timer"><i id="tb"></i></div><span class="who">Estudante diz:</span>
+ <div class="msg" id="msg" draggable="true">“${m}”</div>${c?`<p class="ctx">ℹ️ ${c}</p>`:""}
+ <div class="bins">${[1,2,3].map(n=>`<button class="bin b${n}" data-n="${n}">${n===1?"🤖":n===2?"🧑‍🏫":"🎓"} N${n}<small>${L[n].replace(/ \(N\d\)/,"")}</small></button>`).join("")}</div>
+ <div class="fb" id="fb" role="status"></div>`;
+ say(`Mensagem ${i+1}: ${m}`);
+ document.querySelectorAll(".bin").forEach(b=>{b.onclick=()=>pick(+b.dataset.n);
+  b.ondragover=e=>{e.preventDefault();b.classList.add("over")};b.ondragleave=()=>b.classList.remove("over");
+  b.ondrop=e=>{e.preventDefault();pick(+b.dataset.n)}});
+ $("#msg").ondragstart=e=>e.dataTransfer.setData("text","x");
+ clearInterval(tick);tick=setInterval(()=>{left-=.1;$("#tb").style.width=Math.max(0,left/T*100)+"%";if(left<=0)pick(0)},100);
+}
+function pick(n){
+ if(locked)return;locked=true;clearInterval(tick);
+ const [m,,ans,why]=q[i],ok=n===ans;
+ document.querySelectorAll(".bin").forEach(b=>b.disabled=true);
+ let g=0;
+ if(ok){combo++;best=Math.max(best,combo);g=Math.round((100+Math.round(left)*10)*Math.max(1,combo));score+=g}
+ else{combo=0;lives--}
+ log.push({m,n,ans,ok});
+ const fb=$("#fb");fb.className="fb "+(ok?"ok":"er");
+ fb.innerHTML=`<b>${ok?`✅ Certo! +${g}`:n?`❌ Era ${L[ans]}`:`⏰ Tempo esgotado! Era ${L[ans]}`}</b><p>${why}</p>
+ <button class="btn" id="nx">${i<q.length-1&&lives>0?"Próxima mensagem →":"Ver resultado"}</button>`;
+ say((ok?"Certo. ":"Errado. ")+why);i++;$("#nx").onclick=next;$("#nx").focus();
+}
+function end(){
+ clearInterval(tick);const hits=log.filter(x=>x.ok).length;
+ const r=lives<=0?["😵 Plantão sobrecarregado","As dúvidas se acumularam. Revise os critérios de encaminhamento e tente de novo."]
+ :hits>=11?["🏆 Coordenador(a) mestre","Você encaminha como quem desenhou o fluxograma."]
+ :hits>=8?["🥈 Mediador(a) confiante","Bom domínio dos critérios. Revise os erros abaixo."]
+ :["🥉 Tutor(a) em formação","Vale rever a seção 3.2 do material de apoio."];
+ app.innerHTML=`<p class="sub" style="margin:0">Fim do plantão</p><p class="big">${score} pts</p><div class="badge">${r[0]}</div>
+ <p>${hits} de ${log.length} mensagens encaminhadas certo · maior combo: x${best}</p><p>${r[1]}</p>
+ <h3>Revisão</h3><ul class="rev">${log.map(x=>`<li>${x.ok?"✅":"❌"} “${x.m}” → <b>${L[x.ans]}</b></li>`).join("")}</ul>
+ <button class="btn" id="re">Jogar de novo</button> <a class="btn g" href="index.html#pratica" target="_top">Revisar o material</a>`;
+ say(`Fim. ${score} pontos. ${r[0]}`);$("#re").onclick=start;
+}
+document.addEventListener("keydown",e=>{if(["1","2","3"].includes(e.key)&&document.querySelector(".bin:not([disabled])"))pick(+e.key)});
+intro();
+</script></body></html>
